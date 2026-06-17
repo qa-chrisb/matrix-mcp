@@ -36,10 +36,32 @@ can also authenticate at runtime with the `login` tool.
 | `MATRIX_PASSWORD`    | Password for automatic login at startup. |
 | `MATRIX_DEVICE_NAME` | Device display name (default `matrix-mcp`). |
 | `MATRIX_SESSION_FILE`| Path to persist the session (default: `$XDG_STATE_HOME/matrix-mcp/session.json`, falling back to `~/.local/state/matrix-mcp/session.json`). |
+| `MATRIX_MCP_TRANSPORT` | Transport to serve: `stdio` (default) or `http`/`sse`. |
+| `MATRIX_MCP_ADDRESS` | Bind address for the HTTP/SSE transport (default `127.0.0.1:8000`). |
+| `MATRIX_MCP_PATH`    | URL path for the HTTP/SSE endpoint (default `/mcp`). |
 | `RUST_LOG`           | Log filter, e.g. `matrix_mcp=debug,matrix_sdk=info`. Logs go to stderr. |
 
 On startup the server tries to restore a saved session; if none exists and
 `MATRIX_USER`/`MATRIX_PASSWORD` are set, it performs a password login.
+
+## Transports
+
+The server supports two MCP transports, selected with `MATRIX_MCP_TRANSPORT`:
+
+- **`stdio`** (default) — the classic stdio transport for local MCP clients.
+- **`http`** / **`sse`** — the SSE-based [streamable-HTTP](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports#streamable-http)
+  transport, served over a TCP socket for remote/networked clients. Server →
+  client messages are streamed as Server-Sent Events on the same endpoint.
+
+Run the SSE/HTTP transport:
+
+```sh
+MATRIX_MCP_TRANSPORT=sse \
+MATRIX_MCP_ADDRESS=127.0.0.1:8000 \
+MATRIX_MCP_PATH=/mcp \
+  ./target/release/matrix-mcp
+# MCP endpoint: http://127.0.0.1:8000/mcp
+```
 
 ## Build
 
